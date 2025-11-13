@@ -225,37 +225,6 @@ DELETE /appointments/{id}
 
 ---
 
-## ✔️ **Regra de Negócio Mais Importante**
-
-### 💥 **Não pode haver conflito de horário para o mesmo advogado.**
-
-O sistema deve verificar:
-
-```
-(start < existing.end) AND (end > existing.start)
-```
-
-Caso exista conflito → retornar erro com mensagem clara.
-
----
-
-## 🧪 **Testes**
-
-* Testes unitários com JUnit
-* Testes de Serviço para regras de agendamento
-* Testes básicos dos repositórios
-
----
-
-## 📌 **Melhorias Futuras**
-
-* Painel analítico dos atendimentos
-* Interface mobile
-* Relatórios internos
-* Agenda com visualização semanal e mensal
-
----
-
 ## 👨‍💻 **Autores**
 
 Projeto desenvolvido pelos alunos de **ADS – Unimetrocamp**:
