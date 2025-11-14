@@ -1,4 +1,4 @@
-# ⚖️ Sistema de Agendamento Jurídico (SAJ) - Backend
+# ⚖️ Sistema de Agendamento Jurídico (SAJ)
 
 Este é o módulo Backend do Sistema de Agendamento Jurídico (SAJ), desenvolvido com Spring Boot. Ele fornece a API RESTful para gerenciar advogados (usuários), clientes, processos e agendamentos, além de funcionalidades de autenticação e dashboard.
 
