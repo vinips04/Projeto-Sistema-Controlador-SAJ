@@ -1,3 +1,7 @@
+#🏛️ Projeto de Faculdade: Sistema de Agendamento Jurídico (SAJ)
+
+Sistema de Agendamento Jurídico (SAJ), projeto de faculdade desenvolvido para a disciplina de Java Orientada a Objetos. O sistema fornece o gerenciamento de advogados, clientes, processos e agendamentos, utilizando o framework Spring Boot.
+
 # ⚖️ Sistema de Agendamento Jurídico (SAJ)
 
 Este é o módulo Backend do Sistema de Agendamento Jurídico (SAJ), desenvolvido com Spring Boot. Ele fornece a API RESTful para gerenciar advogados (usuários), clientes, processos e agendamentos, além de funcionalidades de autenticação e dashboard.
@@ -164,3 +168,4 @@ Para contribuir com o projeto, siga os passos:
 Este projeto está licenciado sob a licença MIT.
 
 ---
+
