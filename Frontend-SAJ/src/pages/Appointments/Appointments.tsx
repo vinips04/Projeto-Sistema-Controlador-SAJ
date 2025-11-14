@@ -3,6 +3,8 @@ import { Calendar, Plus, Pencil, Trash2, X, Clock, User } from 'lucide-react';
 import { appointmentService, clientService, processService, userService } from '../../services';
 import type { AppointmentDTO, ClientDTO, ProcessDTO, UserDTO } from '../../types';
 import { format } from 'date-fns';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
+import { useConfirm } from '../../hooks/useConfirm';
 
 export function Appointments() {
   const [appointments, setAppointments] = useState<AppointmentDTO[]>([]);
@@ -13,6 +15,7 @@ export function Appointments() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<AppointmentDTO | null>(null);
   const [error, setError] = useState('');
+  const { isOpen: isConfirmOpen, options: confirmOptions, confirm, handleConfirm, handleCancel } = useConfirm();
 
   const [formData, setFormData] = useState<Omit<AppointmentDTO, 'id'>>({
     dateTime: '',
@@ -111,8 +114,17 @@ export function Appointments() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este agendamento?')) return;
+  const handleDelete = async (id: string, clientName: string, dateTime: string) => {
+    const formattedDate = formatDateTime(dateTime);
+    const confirmed = await confirm({
+      title: 'Excluir Agendamento',
+      message: `Tem certeza que deseja excluir o agendamento com ${clientName} marcado para ${formattedDate}? Esta ação não pode ser desfeita.`,
+      confirmText: 'Excluir',
+      cancelText: 'Cancelar',
+      variant: 'danger',
+    });
+
+    if (!confirmed) return;
 
     try {
       await appointmentService.delete(id);
@@ -225,7 +237,14 @@ export function Appointments() {
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => appointment.id && handleDelete(appointment.id)}
+                        onClick={() =>
+                          appointment.id &&
+                          handleDelete(
+                            appointment.id,
+                            getClientName(appointment.clientId),
+                            appointment.dateTime
+                          )
+                        }
                         className="inline-flex items-center gap-1 text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -373,6 +392,18 @@ export function Appointments() {
           </div>
         </div>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={confirmOptions.title}
+        message={confirmOptions.message}
+        confirmText={confirmOptions.confirmText}
+        cancelText={confirmOptions.cancelText}
+        variant={confirmOptions.variant}
+      />
     </div>
   );
 }

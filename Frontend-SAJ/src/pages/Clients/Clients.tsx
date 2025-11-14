@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Users, Plus, Pencil, Trash2, X } from 'lucide-react';
 import { clientService } from '../../services';
 import type { ClientDTO } from '../../types';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
+import { useConfirm } from '../../hooks/useConfirm';
 
 export function Clients() {
   const [clients, setClients] = useState<ClientDTO[]>([]);
@@ -9,6 +11,7 @@ export function Clients() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientDTO | null>(null);
   const [error, setError] = useState('');
+  const { isOpen: isConfirmOpen, options: confirmOptions, confirm, handleConfirm, handleCancel } = useConfirm();
 
   // Form state
   const [formData, setFormData] = useState<Omit<ClientDTO, 'id'>>({
@@ -77,8 +80,16 @@ export function Clients() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
+  const handleDelete = async (id: string, clientName: string) => {
+    const confirmed = await confirm({
+      title: 'Excluir Cliente',
+      message: `Tem certeza que deseja excluir o cliente "${clientName}"? Esta ação não pode ser desfeita.`,
+      confirmText: 'Excluir',
+      cancelText: 'Cancelar',
+      variant: 'danger',
+    });
+
+    if (!confirmed) return;
 
     try {
       await clientService.delete(id);
@@ -164,7 +175,7 @@ export function Clients() {
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => client.id && handleDelete(client.id)}
+                        onClick={() => client.id && handleDelete(client.id, client.name)}
                         className="inline-flex items-center gap-1 text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -270,6 +281,18 @@ export function Clients() {
           </div>
         </div>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={confirmOptions.title}
+        message={confirmOptions.message}
+        confirmText={confirmOptions.confirmText}
+        cancelText={confirmOptions.cancelText}
+        variant={confirmOptions.variant}
+      />
     </div>
   );
 }

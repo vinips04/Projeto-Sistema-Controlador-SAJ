@@ -12,6 +12,9 @@ export interface AuthRequest {
 
 export interface AuthResponse {
   token: string;
+  userId: string;
+  fullName: string;
+  username: string;
 }
 
 // User
@@ -55,4 +58,17 @@ export interface AppointmentDTO {
 export interface ErrorResponse {
   message: string;
   errors?: Record<string, string[]>;
+}
+
+// Dashboard
+export interface DashboardStats {
+  totalClients: number;
+  activeProcesses: number;
+  todayAppointments: number;
+  weekAppointments: number;
+}
+
+export interface AppointmentWithDetails extends AppointmentDTO {
+  clientName: string;
+  processNumber?: string;
 }
