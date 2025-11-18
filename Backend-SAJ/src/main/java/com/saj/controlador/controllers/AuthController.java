@@ -2,69 +2,32 @@ package com.saj.controlador.controllers;
 
 import com.saj.controlador.dto.AuthRequestDTO;
 import com.saj.controlador.dto.AuthResponseDTO;
-import com.saj.controlador.entities.User;
-import com.saj.controlador.repositories.UserRepository;
-import com.saj.controlador.security.JwtUtil;
+import com.saj.controlador.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private UserRepository userRepository; // Injetando UserRepository
+    private AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequestDTO authRequest) {
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-            );
+            AuthResponseDTO response = authService.authenticate(authRequest);
+            return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Erro de autenticação: Usuário ou senha inválidos.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Erro de autenticação: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado durante a autenticação: " + e.getMessage());
         }
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails);
-
-        // Buscar o usuário completo para obter id, fullName e username
-        Optional<User> userOptional = userRepository.findByUsername(authRequest.getUsername());
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado após autenticação.");
-        }
-        User user = userOptional.get();
-
-        AuthResponseDTO response = AuthResponseDTO.builder()
-                .token(jwt)
-                .userId(user.getId().toString())
-                .fullName(user.getFullName())
-                .username(user.getUsername())
-                .build();
-
-        return ResponseEntity.ok(response);
     }
 }

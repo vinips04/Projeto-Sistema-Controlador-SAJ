@@ -5,10 +5,7 @@ import com.saj.controlador.entities.Appointment;
 import com.saj.controlador.entities.Client;
 import com.saj.controlador.entities.Process;
 import com.saj.controlador.entities.User;
-import com.saj.controlador.repositories.ClientRepository;
-import com.saj.controlador.repositories.ProcessRepository;
-import com.saj.controlador.repositories.UserRepository;
-import com.saj.controlador.exceptions.ResourceNotFoundException;
+import com.saj.controlador.services.EntityValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,13 +13,7 @@ import org.springframework.stereotype.Component;
 public class AppointmentMapper {
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private ProcessRepository processRepository;
+    private EntityValidationService entityValidationService;
 
     public AppointmentDTO toDTO(Appointment appointment) {
         if (appointment == null) {
@@ -51,15 +42,12 @@ public class AppointmentMapper {
     }
 
     public void updateEntityFromDTO(Appointment appointment, AppointmentDTO dto) {
-        User lawyer = userRepository.findById(dto.getLawyerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Lawyer not found with id: " + dto.getLawyerId()));
-        Client client = clientRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + dto.getClientId()));
-        
+        User lawyer = entityValidationService.validateAndGetUser(dto.getLawyerId());
+        Client client = entityValidationService.validateAndGetClient(dto.getClientId());
+
         Process process = null;
         if (dto.getProcessId() != null) {
-            process = processRepository.findById(dto.getProcessId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Process not found with id: " + dto.getProcessId()));
+            process = entityValidationService.validateAndGetProcess(dto.getProcessId());
         }
 
         appointment.setDateTime(dto.getDateTime());

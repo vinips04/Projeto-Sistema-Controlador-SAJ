@@ -3,8 +3,7 @@ package com.saj.controlador.mappers;
 import com.saj.controlador.dto.ProcessDTO;
 import com.saj.controlador.entities.Client;
 import com.saj.controlador.entities.Process;
-import com.saj.controlador.repositories.ClientRepository;
-import com.saj.controlador.exceptions.ResourceNotFoundException;
+import com.saj.controlador.services.EntityValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class ProcessMapper {
 
     @Autowired
-    private ClientRepository clientRepository;
+    private EntityValidationService entityValidationService;
 
     public ProcessDTO toDTO(Process process) {
         if (process == null) {
@@ -31,8 +30,7 @@ public class ProcessMapper {
         if (dto == null) {
             return null;
         }
-        Client client = clientRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + dto.getClientId()));
+        Client client = entityValidationService.validateAndGetClient(dto.getClientId());
 
         Process process = new Process();
         process.setId(dto.getId());
